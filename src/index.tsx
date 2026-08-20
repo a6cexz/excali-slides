@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react'
-import ReactDOM from 'react-dom'
+import React from 'react'
+import { createRoot } from 'react-dom/client'
 import { SlidesList } from './SlidesList'
 import 'normalize.css'
 
-ReactDOM.render(<SlidesList />, document.getElementById('app'))
+const root = createRoot(document.getElementById('app')!)
+root.render(<SlidesList />)

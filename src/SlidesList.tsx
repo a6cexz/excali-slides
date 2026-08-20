@@ -34,18 +34,17 @@ export const SlidesList = () => {
   }, [])
 
   const getSlide = (id: string) => slides.find((s) => s.id === id)
-  const updateSlide = (id: string, elements: any[]) => {
+  const updateSlide = (id: string, elements: any[], files?: Slide['files']) => {
     const newSlides = slides.map((slide) =>
       slide.id === id
-        ? { ...slide, elements: elements.filter((e) => !e.isDeleted) }
+        ? { ...slide, elements: elements.filter((e) => !e.isDeleted), files }
         : slide
     )
     updateSlides(newSlides)
   }
 
   const changeCurrentSlide = (id: string) => {
-    setCurrentSlide(undefined)
-    setTimeout(() => setCurrentSlide(id), 10)
+    setCurrentSlide(id)
   }
 
   const addSlide = () => {
@@ -65,7 +64,6 @@ export const SlidesList = () => {
 
   const toggleEditMode = () => {
     setEditMode((e) => !e)
-    changeCurrentSlide(currentSlide!)
   }
 
   const moveSlideUp = () => {
@@ -90,6 +88,24 @@ export const SlidesList = () => {
       )
     )
   }
+  const duplicateSlide = () => {
+    const slide = getSlide(currentSlide!)
+    if (!slide) return
+    const duplicated: Slide = {
+      id: String(Math.random()),
+      elements: JSON.parse(JSON.stringify(slide.elements)),
+      files: slide.files
+        ? JSON.parse(JSON.stringify(slide.files))
+        : undefined,
+    }
+    updateSlides([
+      ...slides.slice(0, slideIndex + 1),
+      duplicated,
+      ...slides.slice(slideIndex + 1),
+    ])
+    changeCurrentSlide(duplicated.id)
+  }
+
   const deleteSlide = () => {
     updateSlides(slides.filter((s) => s.id !== currentSlide))
     if (isLastSlide) {
@@ -107,6 +123,14 @@ export const SlidesList = () => {
         break
       case 'ArrowLeft':
         goToPreviousSlide()
+        break
+      case ' ':
+        event.preventDefault()
+        if (event.shiftKey) {
+          goToPreviousSlide()
+        } else {
+          goToNextSlide()
+        }
         break
       case 'Escape':
         toggleEditMode()
@@ -199,6 +223,15 @@ export const SlidesList = () => {
                     <li>
                       <button
                         className="button"
+                        title="Duplicate slide"
+                        onClick={duplicateSlide}
+                      >
+                        ⧉
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        className="button"
                         disabled={slides.length === 1}
                         onClick={deleteSlide}
                       >
@@ -248,9 +281,12 @@ export const SlidesList = () => {
       {!editMode && <div className="overlay"></div>}
       {currentSlide !== undefined && (
         <SlideEditor
+          key={currentSlide}
           editMode={editMode}
           slide={getSlide(currentSlide)!}
-          onSlideChange={(elements) => updateSlide(currentSlide, elements)}
+          onSlideChange={(elements, files) =>
+            updateSlide(currentSlide, elements, files)
+          }
         />
       )}
     </>

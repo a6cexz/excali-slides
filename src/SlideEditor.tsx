@@ -1,25 +1,27 @@
-import React, { useEffect, useState } from 'react'
-import Excalidraw from 'excalidraw'
-import 'excalidraw/dist/excalidraw.min.css'
+import React, { useState } from 'react'
+import { Excalidraw } from '@excalidraw/excalidraw'
+import '@excalidraw/excalidraw/index.css'
 import { Slide } from './types'
 
 export interface Props {
   slide: Slide
   editMode: boolean
-  onSlideChange: (elements: any[]) => void
+  onSlideChange: (elements: any[], files: Slide['files']) => void
 }
 
 const sameElement = (el1: any, el2: any) => {
   const {
-    version: el1Version,
-    versionNonce: el1VersionNonce,
-    seed: el1Seed,
+    version: _el1Version,
+    versionNonce: _el1VersionNonce,
+    seed: _el1Seed,
+    updated: _el1Updated,
     ...el1Attributes
   } = el1
   const {
-    version: el2Version,
-    versionNonce: el2VersionNonce,
-    seed: el2Seed,
+    version: _el2Version,
+    versionNonce: _el2VersionNonce,
+    seed: _el2Seed,
+    updated: _el2Updated,
     ...el2Attributes
   } = el2
   return JSON.stringify(el1Attributes) === JSON.stringify(el2Attributes)
@@ -32,29 +34,13 @@ const sameElements = (elements1: any[], elements2: any[]) =>
 export const SlideEditor = ({ slide, editMode, onSlideChange }: Props) => {
   const [initialElements, setInitialElements] = useState(slide.elements)
 
-  const onChange = (elements: any[]) => {
-    if (!sameElements(elements, initialElements)) {
-      onSlideChange(elements)
-      setInitialElements(JSON.parse(JSON.stringify(elements)))
+  const onChange = (elements: readonly any[], _appState: unknown, files: Slide['files']) => {
+    const nextElements = [...elements]
+    if (!sameElements(nextElements, initialElements)) {
+      onSlideChange(nextElements, files)
+      setInitialElements(JSON.parse(JSON.stringify(nextElements)))
     }
   }
-
-  const [dimensions, setDimensions] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  })
-
-  const onResize = () => {
-    setDimensions({
-      width: window.innerWidth,
-      height: window.innerHeight,
-    })
-  }
-
-  useEffect(() => {
-    window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
-  }, [])
 
   return (
     <div
@@ -68,24 +54,26 @@ export const SlideEditor = ({ slide, editMode, onSlideChange }: Props) => {
     >
       {!editMode && (
         <style>{`
-        .excalidraw .App-menu,
+          .excalidraw .layer-ui__wrapper,
+          .excalidraw .App-menu,
+          .excalidraw .App-toolbar-container,
           footer.layer-ui__wrapper__footer {
-          display: none
-        }
+            display: none !important;
+          }
         `}</style>
       )}
-      <style>
-        {`
-          .excalidraw .App-menu_top > *:first-child > *:first-child {
-            display: none
-          }
-        `}
-      </style>
       <Excalidraw
-        width={dimensions.width}
-        height={dimensions.height}
-        initialData={slide.elements}
+        key={slide.id}
+        initialData={{
+          elements: slide.elements,
+          files: slide.files,
+          scrollToContent: true,
+        }}
         onChange={onChange}
+        viewModeEnabled={!editMode}
+        UIOptions={{
+          welcomeScreen: false,
+        }}
       />
     </div>
   )

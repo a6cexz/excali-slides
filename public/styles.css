@@ -1,6 +1,26 @@
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+}
+
+#app {
+  position: relative;
+  overflow: hidden;
+}
+
 body {
   font-family: system-ui, system-ui, -apple-system, 'Segoe UI', Roboto,
     Helvetica, Arial, sans-serif;
+  --island-bg-color: #ffffff;
+  --shadow-island: 0 1px 4px rgba(0, 0, 0, 0.16);
+  --border-radius-md: 0.375rem;
+  --space-factor: 0.25rem;
+  --padding: 4px;
+  --button-gray-1: #e9ecef;
+  --button-gray-2: #ced4da;
+  --button-gray-3: #adb5bd;
 }
 
 .slides-list {
@@ -10,11 +30,11 @@ body {
   right: 5px;
   max-height: calc(100vh - 100px);
   width: 120px;
-  background-color: var(--bg-color-island);
+  background-color: var(--island-bg-color, #ffffff);
   backdrop-filter: saturate(100%) blur(10px);
   box-shadow: var(--shadow-island);
-  border-radius: var(--border-radius-m);
-  padding: calc(var(--padding) * var(--space-factor));
+  border-radius: var(--border-radius-md, 0.5rem);
+  padding: var(--padding);
   display: flex;
   flex-direction: column;
 }
@@ -34,6 +54,10 @@ body {
   display: flex;
   height: 80px;
   margin: var(--space-factor) var(--space-factor) 0;
+}
+
+.slides-list > ul > li:has(> ul) {
+  height: 108px;
 }
 
 .slides-list > ul > li:last-of-type {
@@ -61,10 +85,6 @@ body {
   flex: 1;
 }
 
-.layer-ui__wrapper__github-corner {
-  display: none;
-}
-
 .toolbar {
   margin: 0;
   display: flex;
@@ -76,11 +96,11 @@ body {
   left: calc(50vw - 136px / 2);
   height: 48px;
   width: 136px;
-  background-color: var(--bg-color-island);
+  background-color: var(--island-bg-color, #ffffff);
   backdrop-filter: saturate(100%) blur(10px);
   box-shadow: var(--shadow-island);
-  border-radius: var(--border-radius-m);
-  padding: calc(var(--padding) * var(--space-factor));
+  border-radius: var(--border-radius-md, 0.5rem);
+  padding: var(--padding);
 }
 
 .toolbar li {
